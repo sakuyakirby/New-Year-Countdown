@@ -1,46 +1,44 @@
-let countdownInterval;
+let interval;
 
-function init() {
-    // 1. 現在の年を取得
-    const currentYear = new Date().getFullYear();
-    // 2. 「次の年」を計算
-    const nextYear = currentYear + 1;
-    
-    // 入力欄に「次の年」を自動で入れる
-    const yearInput = document.getElementById('yearInput');
-    yearInput.value = nextYear;
+        // タイマーの表示エリアをリセットするためのHTMLを保存しておく
+        const timerHtmlBackup = document.getElementById('timer').innerHTML;
 
-    // カウントダウン開始
-    startCountdown();
-}
+        function updateCountdown() {
+            const year = document.getElementById('yearInput').value;
+            const target = new Date(`${year}-01-01T00:00:00`).getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
 
-function startCountdown() {
-    clearInterval(countdownInterval);
+            const timerElement = document.getElementById('timer');
 
-    const targetYear = document.getElementById('yearInput').value;
-    const targetDate = new Date(`${targetYear}-01-01T00:00:00`).getTime();
+            if (diff <= 0) {
+                timerElement.innerHTML = "<h2>ハッピーニューイヤー！</h2>";
+                clearInterval(interval);
+                return;
+            } else {
+                // もし「ハッピーニューイヤー」と表示されていたら、元の数字用の表示に戻す
+                if (timerElement.querySelector('h2')) {
+                    timerElement.innerHTML = timerHtmlBackup;
+                }
+            }
 
-    countdownInterval = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = targetDate - now;
-
-        if (distance < 0) {
-            clearInterval(countdownInterval);
-            document.getElementById('timer').innerHTML = "<h2>ハッピーニューイヤー！</h2>";
-            return;
+            // 数字を更新
+            document.getElementById('days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById('minutes').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('seconds').innerText = Math.floor((diff % (1000 * 60)) / 1000);
         }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        window.onload = function() {
+            const nextYear = new Date().getFullYear() + 1;
+            document.getElementById('yearInput').value = nextYear;
+            updateCountdown();
+            interval = setInterval(updateCountdown, 1000);
+        };
 
-        document.getElementById('days').innerText = days;
-        document.getElementById('hours').innerText = hours;
-        document.getElementById('minutes').innerText = minutes;
-        document.getElementById('seconds').innerText = seconds;
-    }, 1000);
-}
-
-// ページが読み込まれたら init 関数を実行
-window.onload = init;
+        document.getElementById('startBtn').onclick = function() {
+            clearInterval(interval);
+            updateCountdown();
+            // スタートを押した時にもう一度1秒ごとの更新を開始する
+            interval = setInterval(updateCountdown, 1000);
+        };
