@@ -5,31 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026記念 カウントダウン</title>
     <style>
-        /* CSS: 見た目 */
-        body {
-            background-color: #2c3e50;
-            color: white;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
+        body { background-color: #2c3e50; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { text-align: center; background: rgba(0,0,0,0.2); padding: 30px; border-radius: 20px; }
         .input-area { margin-bottom: 20px; }
-        input { padding: 8px; font-size: 18px; width: 80px; text-align: center; }
-        button { padding: 8px 15px; font-size: 18px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; }
-        #timer { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
-        .unit { background: #34495e; padding: 15px; border-radius: 10px; min-width: 60px; }
+        input { padding: 8px; font-size: 18px; width: 80px; text-align: center; border-radius: 5px; border: none; }
+        button { padding: 8px 15px; font-size: 18px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; }
+        button:hover { background: #ff5e4d; }
+        #timer { display: flex; gap: 15px; justify-content: center; margin-top: 20px; min-height: 120px; align-items: center; }
+        .unit { background: #34495e; padding: 15px; border-radius: 10px; min-width: 70px; }
         .unit span { font-size: 2.5rem; font-weight: bold; display: block; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>🎍 次の正月まであと...</h1>
+        <h1>🎍 目標の年まであと...</h1>
         
         <div class="input-area">
             <input type="number" id="yearInput">
@@ -38,16 +28,22 @@
         </div>
 
         <div id="timer">
-            <div class="unit"><span id="days">0</span>日</div>
-            <div class="unit"><span id="hours">0</span>時</div>
-            <div class="unit"><span id="minutes">0</span>分</div>
-            <div class="unit"><span id="seconds">0</span>秒</div>
-        </div>
+            </div>
     </div>
 
     <script>
-        // JavaScript: 動き
         let interval;
+
+        // タイマーの「数字を入れる枠」を作る関数
+        function createTimerUI() {
+            const timerElement = document.getElementById('timer');
+            timerElement.innerHTML = `
+                <div class="unit"><span id="days">0</span>日</div>
+                <div class="unit"><span id="hours">0</span>時</div>
+                <div class="unit"><span id="minutes">0</span>分</div>
+                <div class="unit"><span id="seconds">0</span>秒</div>
+            `;
+        }
 
         function updateCountdown() {
             const year = document.getElementById('yearInput').value;
@@ -55,29 +51,38 @@
             const now = new Date().getTime();
             const diff = target - now;
 
+            const timerElement = document.getElementById('timer');
+
+            // 1. 時間切れの場合
             if (diff <= 0) {
-                document.getElementById('timer').innerHTML = "<h2>ハッピーニューイヤー！</h2>";
+                timerElement.innerHTML = "<h2>ハッピーニューイヤー！</h2>";
                 clearInterval(interval);
                 return;
             }
 
+            // 2. 未来の時間で、まだ「ハッピーニューイヤー」が出ていたら枠を復活させる
+            if (timerElement.querySelector('h2') || timerElement.innerHTML.trim() === "") {
+                createTimerUI();
+            }
+
+            // 3. 数字を更新
             document.getElementById('days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
             document.getElementById('hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             document.getElementById('minutes').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             document.getElementById('seconds').innerText = Math.floor((diff % (1000 * 60)) / 1000);
         }
 
-        // ページを読み込んだ時の処理
+        // ページ読み込み時の処理
         window.onload = function() {
             const nextYear = new Date().getFullYear() + 1;
             document.getElementById('yearInput').value = nextYear;
             
-            // 最初に一度計算して、1秒ごとに更新
+            createTimerUI(); // 最初に枠を作る
             updateCountdown();
             interval = setInterval(updateCountdown, 1000);
         };
 
-        // ボタンを押した時の処理
+        // スタートボタンを押した時の処理
         document.getElementById('startBtn').onclick = function() {
             clearInterval(interval);
             updateCountdown();
