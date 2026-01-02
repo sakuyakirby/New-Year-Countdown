@@ -3,39 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026記念 カウントダウンタイマー</title>
-    <link rel="stylesheet" href="style.css">
+    <title>2026記念 カウントダウン</title>
+    <style>
+        /* CSS: 見た目 */
+        body {
+            background-color: #2c3e50;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container { text-align: center; background: rgba(0,0,0,0.2); padding: 30px; border-radius: 20px; }
+        .input-area { margin-bottom: 20px; }
+        input { padding: 8px; font-size: 18px; width: 80px; text-align: center; }
+        button { padding: 8px 15px; font-size: 18px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; }
+        #timer { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .unit { background: #34495e; padding: 15px; border-radius: 10px; min-width: 60px; }
+        .unit span { font-size: 2.5rem; font-weight: bold; display: block; }
+    </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>目標の年までカウントダウン</h1>
+        <h1>🎍 次の正月まであと...</h1>
         
-        <div class="input-section">
-            <input type="number" id="yearInput" value="2026" min="2025">
+        <div class="input-area">
+            <input type="number" id="yearInput">
             <span>年の1月1日まで</span>
-            <button onclick="startCountdown()">スタート！</button>
+            <button id="startBtn">スタート！</button>
         </div>
 
         <div id="timer">
-            <div class="time-unit">
-                <span id="days">0</span>
-                <p>日</p>
-            </div>
-            <div class="time-unit">
-                <span id="hours">0</span>
-                <p>時間</p>
-            </div>
-            <div class="time-unit">
-                <span id="minutes">0</span>
-                <p>分</p>
-            </div>
-            <div class="time-unit">
-                <span id="seconds">0</span>
-                <p>秒</p>
-            </div>
+            <div class="unit"><span id="days">0</span>日</div>
+            <div class="unit"><span id="hours">0</span>時</div>
+            <div class="unit"><span id="minutes">0</span>分</div>
+            <div class="unit"><span id="seconds">0</span>秒</div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // JavaScript: 動き
+        let interval;
+
+        function updateCountdown() {
+            const year = document.getElementById('yearInput').value;
+            const target = new Date(`${year}-01-01T00:00:00`).getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
+
+            if (diff <= 0) {
+                document.getElementById('timer').innerHTML = "<h2>ハッピーニューイヤー！</h2>";
+                clearInterval(interval);
+                return;
+            }
+
+            document.getElementById('days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById('minutes').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('seconds').innerText = Math.floor((diff % (1000 * 60)) / 1000);
+        }
+
+        // ページを読み込んだ時の処理
+        window.onload = function() {
+            const nextYear = new Date().getFullYear() + 1;
+            document.getElementById('yearInput').value = nextYear;
+            
+            // 最初に一度計算して、1秒ごとに更新
+            updateCountdown();
+            interval = setInterval(updateCountdown, 1000);
+        };
+
+        // ボタンを押した時の処理
+        document.getElementById('startBtn').onclick = function() {
+            clearInterval(interval);
+            updateCountdown();
+            interval = setInterval(updateCountdown, 1000);
+        };
+    </script>
 </body>
 </html>
