@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026記念 カウントダウンタイマー</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>目標の年までカウントダウン</h1>
+        
+        <div class="input-section">
+            <input type="number" id="yearInput" value="2026" min="2025">
+            <span>年の1月1日まで</span>
+            <button onclick="startCountdown()">スタート！</button>
+        </div>
+
+        <div id="timer">
+            <div class="time-unit">
+                <span id="days">0</span>
+                <p>日</p>
+            </div>
+            <div class="time-unit">
+                <span id="hours">0</span>
+                <p>時間</p>
+            </div>
+            <div class="time-unit">
+                <span id="minutes">0</span>
+                <p>分</p>
+            </div>
+            <div class="time-unit">
+                <span id="seconds">0</span>
+                <p>秒</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
