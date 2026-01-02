@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026記念 カウントダウン</title>
+    <title>カウントダウン・パーフェクト</title>
     <style>
-        body { background-color: #2c3e50; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .container { text-align: center; background: rgba(0,0,0,0.2); padding: 30px; border-radius: 20px; }
-        .input-area { margin-bottom: 20px; }
-        input { padding: 8px; font-size: 18px; width: 80px; text-align: center; border-radius: 5px; border: 2px solid #e74c3c; }
-        button { padding: 8px 15px; font-size: 18px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; }
-        button:hover { background: #ff5e4d; }
+        body { background-color: #1a1a1a; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { text-align: center; background: #333; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .input-area { margin-bottom: 30px; }
+        input { padding: 10px; font-size: 20px; width: 100px; text-align: center; border-radius: 5px; border: 2px solid #e74c3c; background: #222; color: #fff; }
+        /* 過去の数字の時に入力欄を赤くする */
+        input:invalid { border: 2px solid #ff0000; background: #500; }
+        button { padding: 10px 20px; font-size: 20px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; }
         #timer { display: flex; gap: 15px; justify-content: center; margin-top: 20px; min-height: 120px; align-items: center; }
-        .unit { background: #34495e; padding: 15px; border-radius: 10px; min-width: 70px; }
-        .unit span { font-size: 2.5rem; font-weight: bold; display: block; }
+        .unit { background: #444; padding: 15px; border-radius: 10px; min-width: 70px; }
+        .unit span { font-size: 2.5rem; font-weight: bold; display: block; color: #e74c3c; }
     </style>
 </head>
 <body>
@@ -22,7 +23,7 @@
         <h1>🎍 目標の年まであと...</h1>
         
         <div class="input-area">
-            <input type="number" id="yearInput" min="2026">
+            <input type="number" id="yearInput">
             <span>年の1月1日まで</span>
             <button id="startBtn">スタート！</button>
         </div>
@@ -32,7 +33,9 @@
 
     <script>
         let interval;
+        const currentYear = new Date().getFullYear();
 
+        // 枠を作る関数
         function createTimerUI() {
             const timerElement = document.getElementById('timer');
             timerElement.innerHTML = `
@@ -45,14 +48,12 @@
 
         function updateCountdown() {
             const yearInput = document.getElementById('yearInput');
-            const targetYear = parseInt(yearInput.value);
-            const currentYear = new Date().getFullYear();
+            let targetYear = parseInt(yearInput.value);
 
-            // 【追加】現在の年より前が入力されたら、自動で現在の年に書き換えて警告
+            // 【強化点】入力された瞬間にチェックし、過去なら現在の年に強制修正
             if (targetYear < currentYear) {
-                alert(currentYear + "年以降を入力してください！");
                 yearInput.value = currentYear;
-                return;
+                targetYear = currentYear;
             }
 
             const target = new Date(`${targetYear}-01-01T00:00:00`).getTime();
@@ -77,13 +78,18 @@
         }
 
         window.onload = function() {
-            const currentYear = new Date().getFullYear();
-            const nextYear = currentYear + 1;
+            const yearInput = document.getElementById('yearInput');
+            // HTML側の制限も最新の年に合わせる
+            yearInput.min = currentYear;
+            yearInput.value = currentYear + 1;
             
-            // 入力できる最小値を今年の年に設定
-            document.getElementById('yearInput').min = currentYear;
-            document.getElementById('yearInput').value = nextYear;
-            
+            // 【強化点】入力欄の内容が変わった瞬間にチェックを実行する
+            yearInput.addEventListener('input', function() {
+                if (this.value < currentYear && this.value.length >= 4) {
+                    this.value = currentYear;
+                }
+            });
+
             createTimerUI();
             updateCountdown();
             interval = setInterval(updateCountdown, 1000);
